@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>加速度計</title>
+<title>傾きボール</title>
 
 <style>
 body {
@@ -15,9 +15,17 @@ body {
 #ball {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
     background: red;
+    border-radius: 50%;
     position: absolute;
+}
+
+#debug {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    font-size: 20px;
+    font-family: sans-serif;
 }
 </style>
 </head>
@@ -26,9 +34,16 @@ body {
 
 <div id="ball"></div>
 
+<div id="debug">
+x = ?<br>
+y = ?<br>
+z = ?
+</div>
+
 <script>
 
 const ball = document.getElementById("ball");
+const debug = document.getElementById("debug");
 
 let x = window.innerWidth / 2;
 let y = window.innerHeight / 2;
@@ -48,21 +63,25 @@ function startSensor() {
 
         if (!g) return;
 
-        // 横方向
-        x += g.x * 2;
+        debug.innerHTML =
+            "x = " + (g.x ?? 0).toFixed(2) + "<br>" +
+            "y = " + (g.y ?? 0).toFixed(2) + "<br>" +
+            "z = " + (g.z ?? 0).toFixed(2);
 
-        // 縦方向
-        y += -g.y * 2;
+        x += (g.x ?? 0) * 10;
+        y += -(g.y ?? 0) * 10;
 
         const radius = 25;
 
-        // 左右の壁
-        x = Math.max(radius,
-            Math.min(window.innerWidth - radius, x));
+        x = Math.max(
+            radius,
+            Math.min(window.innerWidth - radius, x)
+        );
 
-        // 上下の壁
-        y = Math.max(radius,
-            Math.min(window.innerHeight - radius, y));
+        y = Math.max(
+            radius,
+            Math.min(window.innerHeight - radius, y)
+        );
 
         updateBall();
     });
@@ -72,8 +91,19 @@ if (
     typeof DeviceMotionEvent !== "undefined" &&
     typeof DeviceMotionEvent.requestPermission === "function"
 ) {
-    document.body.innerHTML +=
-        '<div id="msg" style="position:absolute;top:20px;left:20px;">タップして開始</div>';
+
+    const msg = document.createElement("div");
+
+    msg.id = "msg";
+    msg.textContent = "タップして開始";
+
+    msg.style.position = "absolute";
+    msg.style.top = "50%";
+    msg.style.left = "50%";
+    msg.style.transform = "translate(-50%, -50%)";
+    msg.style.fontSize = "24px";
+
+    document.body.appendChild(msg);
 
     document.body.onclick = async () => {
 
@@ -81,8 +111,12 @@ if (
             await DeviceMotionEvent.requestPermission();
 
         if (result === "granted") {
-            document.getElementById("msg").remove();
+
+            msg.remove();
+
             startSensor();
+
+            document.body.onclick = null;
         }
     };
 }
