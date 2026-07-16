@@ -3,52 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>単振動</title>
+<title>加速度計</title>
 
 <style>
 body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
-    background: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 48px;
+    font-family: sans-serif;
 }
 
-.circle {
-    width: 100px;
-    height: 100px;
-    background: blue;
-    border-radius: 50%;
-    position: absolute;
+#acc {
+    text-align: center;
 }
 </style>
 </head>
 
 <body>
 
-<div class="circle" id="circle"></div>
+<div id="acc">
+    読み込み中...
+</div>
 
 <script>
-const circle = document.getElementById("circle");
+const acc = document.getElementById("acc");
 
-function animate(time) {
+function startSensor() {
+    window.addEventListener("devicemotion", (event) => {
 
-    const t = time / 1000; // 秒
+        const x = event.accelerationIncludingGravity.x;
+        const y = event.accelerationIncludingGravity.y;
+        const z = event.accelerationIncludingGravity.z;
 
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+        const a = Math.sqrt(x*x + y*y + z*z);
 
-    const A = 150;
-    const omega = 2;
-
-    const y = centerY + A * Math.sin(omega * t);
-
-    circle.style.left = (centerX - 50) + "px";
-    circle.style.top = (y - 50) + "px";
-
-    requestAnimationFrame(animate);
+        acc.innerHTML =
+            a.toFixed(2) + "<br>m/s²";
+    });
 }
 
-requestAnimationFrame(animate);
+if (
+    typeof DeviceMotionEvent !== "undefined" &&
+    typeof DeviceMotionEvent.requestPermission === "function"
+) {
+    // iPhone用
+    document.body.onclick = async () => {
+        const permission =
+            await DeviceMotionEvent.requestPermission();
+
+        if (permission === "granted") {
+            startSensor();
+        }
+    };
+
+    acc.innerHTML =
+        "タップして加速度計を有効化";
+} else {
+    // AndroidやPC
+    startSensor();
+}
 </script>
 
 </body>
