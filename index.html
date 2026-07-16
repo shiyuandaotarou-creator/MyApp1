@@ -8,30 +8,38 @@
 <style>
 body {
     margin: 0;
-    height: 100vh;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    font-size: 48px;
-    font-family: sans-serif;
+    overflow: hidden;
+    background: white;
 }
 
-#acc {
-    text-align: center;
+#ball {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: red;
+    position: absolute;
 }
 </style>
+``
 </head>
 
 <body>
 
-<div id="acc">
-    読み込み中...
-</div>
+<div id="ball"></div>
 
 <script>
-const acc = document.getElementById("acc");
+
+const ball = document.getElementById("ball");
+
+let x = window.innerWidth / 2;
+let y = window.innerHeight / 2;
+
+function updateBall() {
+    ball.style.left = (x - 25) + "px";
+    ball.style.top = (y - 25) + "px";
+}
+
+updateBall();
 
 function startSensor() {
 
@@ -41,25 +49,23 @@ function startSensor() {
 
         if (!g) return;
 
-        const x = g.x ?? 0;
-        const y = g.y ?? 0;
-        const z = g.z ?? 0;
+        // 横方向
+        x += g.x * 2;
 
-        // 重力ベクトルの大きさ
-        const norm = Math.sqrt(x*x + y*y + z*z);
+        // 縦方向
+        y += -g.y * 2;
 
-        // 鉛直方向からの傾き
-        const theta = Math.acos(z / norm) * 180 / Math.PI;
+        const radius = 25;
 
-        acc.innerHTML = `
-            x = ${x.toFixed(2)} m/s²<br>
-            y = ${y.toFixed(2)} m/s²<br>
-            z = ${z.toFixed(2)} m/s²<br><br>
+        // 左右の壁
+        x = Math.max(radius,
+            Math.min(window.innerWidth - radius, x));
 
-            |g| = ${norm.toFixed(2)} m/s²<br><br>
+        // 上下の壁
+        y = Math.max(radius,
+            Math.min(window.innerHeight - radius, y));
 
-            傾き角 = ${theta.toFixed(1)}°
-        `;
+        updateBall();
     });
 }
 
@@ -67,13 +73,16 @@ if (
     typeof DeviceMotionEvent !== "undefined" &&
     typeof DeviceMotionEvent.requestPermission === "function"
 ) {
-    acc.innerHTML = "タップして開始";
+    document.body.innerHTML +=
+        '<div id="msg" style="position:absolute;top:20px;left:20px;">タップして開始</div>';
 
     document.body.onclick = async () => {
+
         const result =
             await DeviceMotionEvent.requestPermission();
 
         if (result === "granted") {
+            document.getElementById("msg").remove();
             startSensor();
         }
     };
@@ -81,6 +90,7 @@ if (
 else {
     startSensor();
 }
+
 </script>
 
 </body>
