@@ -1,130 +1,29 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>傾きボール</title>
-
-<style>
-body {
-    margin: 0;
-    overflow: hidden;
-    background: white;
-}
-
-#ball {
-    width: 50px;
-    height: 50px;
-    background: red;
-    border-radius: 50%;
-    position: absolute;
-}
-
-#debug {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    font-size: 20px;
-    font-family: sans-serif;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
-
 <body>
-
-<div id="ball"></div>
-
-<div id="debug">
-x = ?<br>
-y = ?<br>
-z = ?
-</div>
-
-<script>
-
-const ball = document.getElementById("ball");
-const debug = document.getElementById("debug");
-
-let x = window.innerWidth / 2;
-let y = window.innerHeight / 2;
-
-function updateBall() {
-    ball.style.left = (x - 25) + "px";
-    ball.style.top = (y - 25) + "px";
-}
-
-updateBall();
-
-function startSensor() {
-
-    window.addEventListener("devicemotion", (event) => {
-
-        const g = event.accelerationIncludingGravity;
-
-        if (!g) return;
-
-        debug.innerHTML =
-            "x = " + (g.x ?? 0).toFixed(2) + "<br>" +
-            "y = " + (g.y ?? 0).toFixed(2) + "<br>" +
-            "z = " + (g.z ?? 0).toFixed(2);
-
-        x += (g.x ?? 0) * 10;
-        y += -(g.y ?? 0) * 10;
-
-        const radius = 25;
-
-        x = Math.max(
-            radius,
-            Math.min(window.innerWidth - radius, x)
-        );
-
-        y = Math.max(
-            radius,
-            Math.min(window.innerHeight - radius, y)
-        );
-
-        updateBall();
-    });
-}
-
-if (
-    typeof DeviceMotionEvent !== "undefined" &&
-    typeof DeviceMotionEvent.requestPermission === "function"
-) {
-
-    const msg = document.createElement("div");
-
-    msg.id = "msg";
-    msg.textContent = "タップして開始";
-
-    msg.style.position = "absolute";
-    msg.style.top = "50%";
-    msg.style.left = "50%";
-    msg.style.transform = "translate(-50%, -50%)";
-    msg.style.fontSize = "24px";
-
-    document.body.appendChild(msg);
-
-    document.body.onclick = async () => {
-
-        const result =
-            await DeviceMotionEvent.requestPermission();
-
-        if (result === "granted") {
-
-            msg.remove();
-
-            startSensor();
-
-            document.body.onclick = null;
-        }
-    };
-}
-else {
-    startSensor();
-}
-
-</script>
-
+    <h1>ページを開いてからの経過時間</h1>
+    <p class = "showtime">aaa</p>
 </body>
+<style>
+    .showtime{
+        position: absolute;
+        top: 100px;
+        font-size: 50px;
+    }
+</style>
+<script>
+    const t0 = Date.now()/1000;
+    const obj = document.querySelector(".showtime");
+    function update(){
+        t = Date.now()/1000;
+        obj.textContent =Math.round(t-t0);
+        requestAnimationFrame(update)
+    }
+    update();
+</script>
 </html>
