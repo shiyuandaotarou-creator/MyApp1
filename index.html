@@ -6,24 +6,19 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>ページを開いてからの経過時間</h1>
-    <p class = "showtime">aaa</p>
+    <input type="file" id="file">
+    <p id ="text"></p>
 </body>
-<style>
-    .showtime{
-        position: absolute;
-        top: 100px;
-        font-size: 50px;
-    }
-</style>
 <script>
-    const t0 = Date.now()/1000;
-    const obj = document.querySelector(".showtime");
-    function update(){
-        t = Date.now()/1000;
-        obj.textContent =Math.round(t-t0);
-        requestAnimationFrame(update)
-    }
-    update();
+const textObj = document.querySelector("#text");
+const fileObj = document.querySelector("#file");
+fileObj.addEventListener("change",(e)=>{
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload= ()=>{
+        textObj.textContent = reader.result;
+    };
+    reader.readAsText(file);
+})
 </script>
 </html>
