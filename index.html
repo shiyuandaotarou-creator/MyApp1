@@ -1,48 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-
 <body>
-    <div class="rectangle" id="rightup"></div>
-    <div class="rectangle" id="rightdown"></div>
-    <div class="rectangle" id="leftup"></div>
-    <div class="rectangle" id="leftdown"></div>
+   <p id="text"></p>
+    <button id = "fileLoadButtonSurface"><img src="images/fileButton.png" alt="ファイル選択ボタン" id="fileLoadButton"></button>
+    <button id ="playChangeButtonSurface" class = "emptyButton">
+            <img src="images/playButton.png" alt="再生ボタン" id="playButton">
+            <img src="images/pauseButton.png" alt="再生停止ボタン" id="pauseButton">
+    </button>
+    <input type="number" id = "tempoBox">
+    <input type="file" id="fileLoadButtonSystem">
 </body>
 <style>
-    .rectangle {
-        position: absolute;
-        height: 10vw;
-        width: 10vw;
+    #fileLoadButtonSystem{
+        display: none;
     }
-
-    #rightup {
-        top: 10px;
-        right: 10px;
-        background-color: red;
+    #tempoBox{
+        position: fixed;
+        bottom: 30px;
+        right: 20px;
+        height: 50px;
+        width: 170px;
+        font-size: 1cm;
+        text-align: center;
     }
-
-    #rightdown {
+    .emptyButton{
+        position:fixed;
+        border: none;
+        background: none;
+    }
+    #fileLoadButtonSurface{
+        position:fixed;
         bottom: 10px;
-        right: 10px;
-        background-color: blue;
+        border: none;
+        background: none;
     }
-
-    #leftup {
-        top: 10px;
-        left: 10px;
-        background-color: yellow;
+    #fileLoadButton{
+        position:absolute;
+        bottom: 0;
+        height: 20vw;
     }
-
-    #leftdown {
-        bottom: 10px;
-        left: 10px;
-        background-color: green;
+    #playChangeButtonSurface{
+        position: fixed;
+        bottom: 90px;
+        left: 100px;
+    }
+    #playButton{
+        position:fixed;
+        height: 20vw;
+    }
+     #pauseButton{
+        position:fixed;
+        height: 20vw;
+        opacity: 0;
     }
 </style>
+<script>
+    let counter = 0;
+    let isPlaying = false;
+    const fileButton = document.getElementById('fileLoadButtonSurface');
+    const texts = document.getElementById('text');
+    const playChangeButton = document.getElementById("playChangeButtonSurface");
+    const playButton = document.getElementById("playButton");
+    const pauseButton = document.getElementById("pauseButton");
+    let tempo =document.getElementById("tempoBox").value;
+    fileButton.onclick = () =>{
+        document.getElementById("fileLoadButtonSystem").click();
+    };
+    playChangeButton.onclick = () =>{
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            playButton.style.opacity = 0;
+            pauseButton.style.opacity = 1;
+        }else{
+            playButton.style.opacity = 1;
+            pauseButton.style.opacity = 0;
+        }
+    }
 
+
+</script>
 </html>
