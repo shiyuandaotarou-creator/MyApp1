@@ -16,19 +16,16 @@
     <input type="file" id="fileLoadButtonSystem">
 </body>
 <style>
-    body{
-        margin:0;
-    }
     #fileLoadButtonSystem{
         display: none;
     }
     #tempoBox{
         position: fixed;
-        bottom: 30px;
+        bottom: 10px;
         right: 20px;
         height: 50px;
         width: 170px;
-        font-size: 32px;
+        font-size: 1cm;
         text-align: center;
     }
     .emptyButton{
@@ -63,6 +60,7 @@
     }
 </style>
 <script>
+    document.getElementById("text").innerHTML =`${window.innerWidth} × ${window.innerHeight}`;
     let counter = 0;
     let isPlaying = false;
     const fileButton = document.getElementById('fileLoadButtonSurface');
