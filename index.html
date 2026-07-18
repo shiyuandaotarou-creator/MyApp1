@@ -6,7 +6,8 @@
     <title>Document</title>
 </head>
 <body>
-   <p id="text"></p>
+   <p id="text">aaa</p>
+   <p id="nowtime"></p>
     <button id = "fileLoadButtonSurface"><img src="images/fileButton.png" alt="ファイル選択ボタン" id="fileLoadButton"></button>
     <button id ="playChangeButtonSurface" class = "emptyButton">
             <img src="images/playButton.png" alt="再生ボタン" id="playButton">
@@ -60,18 +61,32 @@
     }
 </style>
 <script>
-    document.getElementById("text").innerHTML =`${window.innerWidth} × ${window.innerHeight}`;
-    let counter = 0;
     let isPlaying = false;
+    let primaryTime = Date.now();
+    let time=0;
     const fileButton = document.getElementById('fileLoadButtonSurface');
     const texts = document.getElementById('text');
     const playChangeButton = document.getElementById("playChangeButtonSurface");
     const playButton = document.getElementById("playButton");
     const pauseButton = document.getElementById("pauseButton");
-    let tempo =document.getElementById("tempoBox").value;
+    const tempoBox =document.getElementById("tempoBox");
+    let datalist;
+    let tempo = 0;
+    // tempoBox.addEventListener("change",()=>{
+    //     tempo = tempoBox.value;
+    //     if(Array.isArray(datalist)&&datalist.length >= tempo){
+    //         texts.textContent = datalist[tempo];
+    //     }
+    // })
     fileButton.onclick = () =>{
         document.getElementById("fileLoadButtonSystem").click();
     };
+    document.getElementById("fileLoadButtonSystem").addEventListener("change",async (e) => {
+        const file = e.target.files[0];
+        const text = await file.text();
+        datalist = text.split(/\r?\n/);
+        primaryTime = Date.now();
+    });
     playChangeButton.onclick = () =>{
         isPlaying = !isPlaying;
         if (isPlaying) {
@@ -80,9 +95,16 @@
         }else{
             playButton.style.opacity = 1;
             pauseButton.style.opacity = 0;
-        }
+        };
     }
-
-
+function update(){
+    time = (Date.now()-primaryTime)/1000;
+    document.getElementById("nowtime").textContent = time;
+    if(Array.isArray(datalist)&&datalist.length >= Math.round(time)){
+        texts.textContent = datalist[Math.round(time)];
+    }
+    requestAnimationFrame(update)
+};
+update();
 </script>
 </html>
