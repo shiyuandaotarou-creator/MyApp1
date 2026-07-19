@@ -1,110 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
-   <p id="text">aaa</p>
-   <p id="nowtime"></p>
-    <button id = "fileLoadButtonSurface"><img src="images/fileButton.png" alt="ファイル選択ボタン" id="fileLoadButton"></button>
-    <button id ="playChangeButtonSurface" class = "emptyButton">
-            <img src="images/playButton.png" alt="再生ボタン" id="playButton">
-            <img src="images/pauseButton.png" alt="再生停止ボタン" id="pauseButton">
+    <p id="text">Lyrics</p>
+    <p id="nowtime"></p>
+    <button id="fileLoadButtonSurface"><img src="images/fileButton.png" alt="ファイル選択ボタン" id="fileLoadButton"></button>
+    <button id="playChangeButtonSurface" class="emptyButton">
+        <img src="images/playButton.png" alt="再生ボタン" id="playButton">
+        <img src="images/pauseButton.png" alt="再生停止ボタン" id="pauseButton">
     </button>
-    <input type="number" id = "tempoBox">
+    <button id="resetButtonSurface" class="emptyButton"><img src="images/initialize.png" alt="初期位置へ戻す"
+            id="resetButton"></button>
+    <input type="number" id="tempoBox" value=180>
     <input type="file" id="fileLoadButtonSystem">
 </body>
 <style>
-    #fileLoadButtonSystem{
+    #fileLoadButtonSystem {
         display: none;
     }
-    #tempoBox{
+
+    #tempoBox {
         position: fixed;
-        bottom: 20px;
-        left: 195px;
+        bottom: 22px;
+        left: 300px;
         height: 50px;
-        width: 170px;
+        width: 70px;
         font-size: 1cm;
         text-align: center;
     }
-    .emptyButton{
-        position:fixed;
+
+    .emptyButton {
+        position: fixed;
         border: none;
         background: none;
     }
-    #fileLoadButtonSurface{
-        position:fixed;
+
+    #fileLoadButtonSurface {
+        position: fixed;
         bottom: 10px;
         border: none;
         background: none;
     }
-    #fileLoadButton{
-        position:absolute;
+
+    #fileLoadButton {
+        position: absolute;
         bottom: 0;
         height: 20vw;
     }
-    #playChangeButtonSurface{
+
+    #resetButtonSurface {
+        position: fixed;
+        bottom: 12px;
+        left: 200px;
+    }
+
+    #resetButton {
+        position: absolute;
+        bottom: 0;
+        height: 20vw;
+        /* bottom: 0px;
+        left:0px; */
+    }
+
+    #playChangeButtonSurface {
         position: fixed;
         bottom: 89px;
         left: 100px;
     }
-    #playButton{
-        position:fixed;
+
+    #playButton {
+        position: fixed;
         height: 20vw;
     }
-     #pauseButton{
-        position:fixed;
+
+    #pauseButton {
+        position: fixed;
         height: 20vw;
         opacity: 0;
     }
 </style>
 <script>
-    let isPlaying = false;
-    let primaryTime = Date.now();
-    let time=0;
+    //想定：2小節を一回あたり表示させる
+    //status: init 再生が始まっていない,playing 再生中である,paused 一時停止中である
+    let status = "init";
+    let primaryTime;
+    let time = 0;
+    let realTime = 0;
+    let previousTime = Date.now();;
     const fileButton = document.getElementById('fileLoadButtonSurface');
     const texts = document.getElementById('text');
     const playChangeButton = document.getElementById("playChangeButtonSurface");
     const playButton = document.getElementById("playButton");
     const pauseButton = document.getElementById("pauseButton");
-    const tempoBox =document.getElementById("tempoBox");
+    const resetButton = document.getElementById("resetButtonSurface");
+    const tempoBox = document.getElementById("tempoBox");
     let datalist;
-    let tempo = 0;
-    // tempoBox.addEventListener("change",()=>{
-    //     tempo = tempoBox.value;
-    //     if(Array.isArray(datalist)&&datalist.length >= tempo){
-    //         texts.textContent = datalist[tempo];
-    //     }
-    // })
-    fileButton.onclick = () =>{
+    let tempo = 180;
+    let deltaT = tempo / 480;
+    tempoBox.addEventListener("change", () => {
+        tempo = tempoBox.value;
+        deltaT = tempo / 480;
+        texts.textContent = deltaT;
+    });
+    fileButton.onclick = () => {
         document.getElementById("fileLoadButtonSystem").click();
     };
-    document.getElementById("fileLoadButtonSystem").addEventListener("change",async (e) => {
+    document.getElementById("fileLoadButtonSystem").addEventListener("change", async (e) => {
         const file = e.target.files[0];
         const text = await file.text();
         datalist = text.split(/\r?\n/);
-        primaryTime = Date.now();
+        texts.textContent = "Loading Complete";
     });
-    playChangeButton.onclick = () =>{
-        isPlaying = !isPlaying;
-        if (isPlaying) {
+    playChangeButton.onclick = () => {
+        if (status == "init") {
+            status = "playing";
             playButton.style.opacity = 0;
             pauseButton.style.opacity = 1;
-        }else{
+            primaryTime = Date.now();
+        } else if (status == "playing") {
+            status = "paused";
             playButton.style.opacity = 1;
             pauseButton.style.opacity = 0;
+        } else if (status == "paused") {
+            status = "playing";
+            playButton.style.opacity = 0;
+            pauseButton.style.opacity = 1;
+        }
+    };
+    resetButton.onclick = () => {
+        status = "init";
+        playButton.style.opacity = 1;
+        pauseButton.style.opacity = 0;
+        previousTime = Date.now();
+        primaryTime = Date.now();
+        time = 0;
+        realTime = 0;
+        document.getElementById("nowtime").textContent = realTime;
+    };
+    function update() {
+        realTime = Math.round(time);
+        if (status != "init") {
+            document.getElementById("nowtime").textContent = realTime;
+        }
+        if (status == "playing") {
+            time += deltaT * (Date.now() - previousTime) / 1000;
+            if (Array.isArray(datalist) && datalist.length >= Math.round(time)) {
+                texts.textContent = datalist[Math.round(realTime)];
+            }
+            previousTime = Date.now();
         };
-    }
-function update(){
-    time = (Date.now()-primaryTime)/1000;
-    document.getElementById("nowtime").textContent = time;
-    if(Array.isArray(datalist)&&datalist.length >= Math.round(time)){
-        texts.textContent = datalist[Math.round(time)];
-    }
-    requestAnimationFrame(update)
-};
-update();
+        requestAnimationFrame(update)
+    };
+    update();
 </script>
+
 </html>
