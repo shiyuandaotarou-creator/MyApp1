@@ -9,7 +9,8 @@
 
 <body>
     <p id="text">Lyrics</p>
-    <p id="nowtime"></p>
+    <p id="nowtime">nowtime</p>
+    <p id="nowtempo">nowtempo</p>
     <button id="fileLoadButtonSurface"><img src="images/fileButton.png" alt="ファイル選択ボタン" id="fileLoadButton"></button>
     <button id="playChangeButtonSurface" class="emptyButton">
         <img src="images/playButton.png" alt="再生ボタン" id="playButton">
@@ -19,10 +20,39 @@
             id="resetButton"></button>
     <input type="number" id="tempoBox" value=180>
     <input type="file" id="fileLoadButtonSystem">
+    <img src="images/tempoCounterCircle.png" alt="テンポカウンター1" id="tempoCounterCircle1" class="tempoCounterCircle">
+    <img src="images/tempoCounterCircle.png" alt="テンポカウンター2" id="tempoCounterCircle2" class="tempoCounterCircle">
+    <img src="images/tempoCounterCircle.png" alt="テンポカウンター3" id="tempoCounterCircle3" class="tempoCounterCircle">
+    <img src="images/tempoCounterCircle.png" alt="テンポカウンター4" id="tempoCounterCircle4" class="tempoCounterCircle">
 </body>
 <style>
     #fileLoadButtonSystem {
         display: none;
+    }
+
+    .tempoCounterCircle {
+        position: fixed;
+        height: 20vw;
+    }
+
+    #tempoCounterCircle1 {
+        bottom: 120px;
+        left: 10px;
+    }
+
+    #tempoCounterCircle2 {
+        bottom: 120px;
+        left: 100px;
+    }
+
+    #tempoCounterCircle3 {
+        bottom: 120px;
+        left: 190px;
+    }
+
+    #tempoCounterCircle4 {
+        bottom: 120px;
+        left: 280px;
     }
 
     #tempoBox {
@@ -93,6 +123,7 @@
     let time = 0;
     let realTime = 0;
     let previousTime = Date.now();;
+    let tempoCounter;
     const fileButton = document.getElementById('fileLoadButtonSurface');
     const texts = document.getElementById('text');
     const playChangeButton = document.getElementById("playChangeButtonSurface");
@@ -100,6 +131,11 @@
     const pauseButton = document.getElementById("pauseButton");
     const resetButton = document.getElementById("resetButtonSurface");
     const tempoBox = document.getElementById("tempoBox");
+    const nowTempo = document.getElementById("nowtempo");
+    const tempoCounterCircle1 = document.getElementById("tempoCounterCircle1");
+    const tempoCounterCircle2 = document.getElementById("tempoCounterCircle2");
+    const tempoCounterCircle3 = document.getElementById("tempoCounterCircle3");
+    const tempoCounterCircle4 = document.getElementById("tempoCounterCircle4");
     let datalist;
     let tempo = 180;
     let deltaT = tempo / 480;
@@ -146,15 +182,41 @@
     function update() {
         realTime = Math.round(time);
         if (status != "init") {
-            document.getElementById("nowtime").textContent = realTime;
+            tempoCounter = Math.floor(8 * time % 4 + 1);
+            document.getElementById("nowtime").textContent = time;
+            document.getElementById("nowtempo").textContent = tempoCounter;
+
+            if (tempoCounter == 1) {
+                tempoCounterCircle1.style.opacity = 1;
+                tempoCounterCircle2.style.opacity = 0;
+                tempoCounterCircle3.style.opacity = 0;
+                tempoCounterCircle4.style.opacity = 0;
+            } else if (tempoCounter == 2) {
+                tempoCounterCircle1.style.opacity = 1;
+                tempoCounterCircle2.style.opacity = 1;
+                tempoCounterCircle3.style.opacity = 0;
+                tempoCounterCircle4.style.opacity = 0;
+            } else if (tempoCounter == 3) {
+                tempoCounterCircle1.style.opacity = 1;
+                tempoCounterCircle2.style.opacity = 1;
+                tempoCounterCircle3.style.opacity = 1;
+                tempoCounterCircle4.style.opacity = 0;
+            } else if (tempoCounter == 4) {
+                tempoCounterCircle1.style.opacity = 1;
+                tempoCounterCircle2.style.opacity = 1;
+                tempoCounterCircle3.style.opacity = 1;
+                tempoCounterCircle4.style.opacity = 1;
+            }
         }
         if (status == "playing") {
+
             time += deltaT * (Date.now() - previousTime) / 1000;
             if (Array.isArray(datalist) && datalist.length >= Math.round(time)) {
                 texts.textContent = datalist[Math.round(realTime)];
+
             }
-            previousTime = Date.now();
         };
+        previousTime = Date.now();
         requestAnimationFrame(update)
     };
     update();
